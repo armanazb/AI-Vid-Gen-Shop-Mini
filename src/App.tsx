@@ -30,26 +30,14 @@ export function App() {
 
   if (!products?.length) {
     return (
-      <div className="pt-12 px-4 pb-6 flex justify-center items-center h-screen">
+      <div className="flex justify-center items-center h-screen">
         <p>Loading products...</p>
       </div>
     );
   }
 
-  const topProduct = products[0];
-
   return (
-    <div className="pt-12 px-4 pb-6 flex flex-col items-center h-screen bg-gray-50">
-      <h1 className="text-2xl font-bold mb-2 text-center">
-        Welcome to Shop Minis!
-      </h1>
-      <p className="text-xs text-blue-600 mb-4 text-center bg-blue-50 py-2 px-4 rounded border border-blue-200">
-        🛠️ Edit <b>src/App.tsx</b> to change this come back to see
-        your edits!
-      </p>
-      <p className="text-base text-gray-600 mb-6 text-center">
-        These are the popular products today
-      </p>
+    <div className="h-screen w-full flex justify-center items-center bg-gray-50">
       <div className="relative w-full h-full flex justify-center items-center">
         <AnimatePresence>
           {products.slice(0, 2).reverse().map((product, index) => {
@@ -57,7 +45,7 @@ export function App() {
             return (
               <motion.div
                 key={product.id}
-                className="absolute w-[80%] h-[60%]"
+                className="absolute w-[85%] max-w-[400px]"
                 style={{
                   scale: isTop ? 1 : 0.95,
                   y: isTop ? 0 : -20,
@@ -78,12 +66,14 @@ export function App() {
                       }
                     }}
                     style={{ x, rotate }}
-                    className="w-full h-full"
+                    className="w-full"
                   >
-                    <ProductCard product={product} />
+                    <div className="shadow-lg rounded-lg overflow-hidden bg-white">
+                      <ProductCard product={product} />
+                    </div>
                   </motion.div>
                 ) : (
-                  <div className="w-full h-full">
+                  <div className="w-full shadow-lg rounded-lg overflow-hidden bg-white">
                     <ProductCard product={product} />
                   </div>
                 )}
