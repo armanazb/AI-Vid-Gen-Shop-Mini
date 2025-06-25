@@ -4,12 +4,13 @@
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "isolatedModules": false,
+    "isolatedModules": true,
     "jsx": "react-jsx",
     "lib": ["es2019", "dom"],
     "noUnusedParameters": true,
     "noUnusedLocals": true,
-    "moduleResolution": "node",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "noEmit": true,
     "incremental": true,
     "strict": true,
@@ -26,7 +27,9 @@
     "strictPropertyInitialization": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
-    "useUnknownInCatchVariables": false
+    "useUnknownInCatchVariables": false,
+    "allowImportingTsExtensions": true,
+    "types": ["vite/client"]
   },
   "exclude": ["node_modules", "dist"]
 }
