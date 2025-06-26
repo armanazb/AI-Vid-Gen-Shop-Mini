@@ -35,23 +35,63 @@ const generateAIVideo = async (product: Product): Promise<string> => {
     throw new Error("Product is missing an image");
   }
 
-  console.log("🚀 Calling fal.subscribe...");
   console.log("🔑 API Key present:", !!import.meta.env.VITE_FAL_KEY);
 
   try {
+    // Step 1: Generate optimized prompt using LLM
+    console.log("🧠 Generating optimized prompt with LLM...");
+    const promptResult = await fal.subscribe("fal-ai/any-llm", {
+      input: {
+        prompt: `You are an expert video prompt engineer. Create a detailed, engaging video prompt for Veo2 (Google's video generation model) based on this product information:
+
+Product Title: ${productInfo.title}
+Product Description: ${productInfo.altText || "No description available"}
+
+Create a prompt that will generate a short, compelling product video that:
+1. Highlights the product's key features and benefits
+2. Uses dynamic camera movements and engaging visuals
+3. Is optimized for Veo2's capabilities
+4. Creates excitement and desire for the product
+5. Is suitable for social media and marketing
+
+The prompt should be specific, detailed, and focus on visual storytelling. Keep it under 200 words but make every word count.
+
+Return ONLY the video prompt, no additional text or explanation.`,
+      },
+      logs: true,
+      onQueueUpdate: (update) => {
+        console.log("🧠 LLM Queue update:", update.status);
+        if (update.status === "IN_PROGRESS" && update.logs) {
+          const newLogs = update.logs.map((log) => log.message);
+          console.log("🧠 LLM Progress logs:", newLogs);
+          newLogs.forEach(console.log);
+        } else if (update.status === "COMPLETED") {
+          console.log("✅ LLM prompt generation completed!");
+        }
+      },
+    });
+
+    const optimizedPrompt = promptResult.data?.output;
+    console.log("🎯 Generated prompt:", optimizedPrompt);
+
+    if (!optimizedPrompt) {
+      console.error("❌ Failed to generate prompt from LLM");
+      throw new Error("Failed to generate optimized prompt");
+    }
+
+    // Step 2: Generate video using the optimized prompt
+    console.log("🚀 Generating video with optimized prompt...");
     const result = await fal.subscribe("fal-ai/veo2/image-to-video", {
       input: {
-        prompt: `Create a short, engaging video for this product.
-         the short description is "${productInfo.altText}".
-        The video should be visually appealing and highlight the key features of the product in a creative way.`,
+        prompt: optimizedPrompt,
         image_url: productInfo.imageUrl,
       },
       logs: true,
       onQueueUpdate: (update) => {
-        console.log("📊 Queue update:", update.status);
+        console.log("📊 Video Queue update:", update.status);
         if (update.status === "IN_PROGRESS" && update.logs) {
           const newLogs = update.logs.map((log) => log.message);
-          console.log("📝 Progress logs:", newLogs);
+          console.log("📝 Video Progress logs:", newLogs);
           newLogs.forEach(console.log);
         } else if (update.status === "COMPLETED") {
           console.log("✅ Video generation completed!");
@@ -71,7 +111,7 @@ const generateAIVideo = async (product: Product): Promise<string> => {
       throw new Error("Video generation failed to produce a result");
     }
   } catch (error) {
-    console.error("💥 Error in fal.subscribe:", error);
+    console.error("💥 Error in generateAIVideo:", error);
     throw error;
   }
 };
